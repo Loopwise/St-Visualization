@@ -6,8 +6,10 @@ import urllib.request
 import os
 import matplotlib.pyplot as plt
 import plotly.figure_factory as ff
+import plotly.express as px
 import pydeck as pdk
 
+# Descarga, agregado de características y filtrado
 @st.experimental_memo
 def download_data(filename = 'data.csv'):
     url = 'https://cloud.minsa.gob.pe/s/8EsmTzyiqmaySxk/download'
@@ -32,11 +34,15 @@ def add_LatLong(df):
     Data = pd.DataFrame((i for i in data), columns =['lat', 'lon'])
     return pd.concat([df, Data], axis = 1)
 
-def filtered_data(data, f_0, f_f):
+def filtered_data(data, f_0, f_f, condition):
     df = data.copy()
+    if condition:
+        df.drop(df[df['dpt_cdc'] == 'LIMA'].index, inplace = True)
     df = df[(df['fecha_fallecimiento'] >= f_0) & (df['fecha_fallecimiento'] <= f_f)]
     return df
 
+# Gráficas
+# Gráfica de mapa geográfico
 @st.experimental_memo
 def chart(data, option):
     df = data.copy()
@@ -77,21 +83,19 @@ def chart(data, option):
         ],
     ))
 
+# Distribuciones
 def Distribuciones(data):
     df = data.copy()
     df_male = df['dpt_cdc'][df['sexo'] == 'M'].value_counts()
     df_female = df['dpt_cdc'][df['sexo'] == 'F'].value_counts()
     df = pd.concat([df_male, df_female], axis = 1)
     df.columns = ['Hombres', 'Mujeres']
-    print(df.head())
 
     st.write("Fallecidos por Departamento distinguiendo Sexo")
     st.write('Número de fallecidos: ', data.shape[0])
     st.bar_chart(df)
 
-"""
-    Gráfica de Pie del Criterio
-"""
+# Grafica de Pie
 def change_index_criterio(data_original):
     data = data_original.copy()
     for i, text in enumerate(data['index']):
