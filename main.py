@@ -13,6 +13,17 @@ seleccion = ['fecha_fallecimiento',
         'flag_hospitalizado', 'flag_uci', 'con_oxigeno',
         'con_ventilacion', 'evolucion_hosp_ultimo']
 
+"""
+        Edad
+        Positividad
+        Vacuna
+        Hospitalizado
+        UCI
+        Oxígeno
+        Ventilación
+        Evolución
+"""
+
 df = df[seleccion]
 df['fecha_fallecimiento'] = pd.to_datetime(df['fecha_fallecimiento']).dt.date
 df = add_LatLong(df)
@@ -22,14 +33,18 @@ set_dep = np.sort(df['dpt_cdc'].dropna().unique())
 dep_opt = st.selectbox('Departamento', set_dep)
 df_dep = df[df['dpt_cdc'] == dep_opt]
 num_filas = df_dep.shape[0]
+num_hosp = df_dep[df_dep['flag_hospitalizado'] == 1].shape[0]
 
-st.write('Número de fallecidos en el departamento: ', num_filas)
+st.write('Número de Fallecidos en el Departamento: ', num_filas)
+st.write('Número de Hospitalizados: ', num_hosp)
+
 
 f_0 = st.date_input("Indique una fecha inferior: ", datetime.date(2020, 1, 1))
 f_f = st.date_input("Indique una fecha superior: ", datetime.date(2021, 1, 1))
-option = st.selectbox('Seleccione el sexo', ('M', 'F', 'Both'))
 
 data = filtered_data(df, f_0, f_f)
-
-chart(data, option)
 Distribuciones(data)
+plot_Criterio(data)
+
+option = st.selectbox('Seleccione el sexo', ('M', 'F', 'Both'))
+chart(data, option)
