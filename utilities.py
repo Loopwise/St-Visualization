@@ -44,15 +44,9 @@ def filtered_data(data, f_0, f_f, condition):
 # Gráficas
 # Gráfica de mapa geográfico
 @st.experimental_memo
-def chart(data, option):
+def chart(data):
     df = data.copy()
-    if option == 'M':
-        df = df[df['sexo'] == 'M']
-    elif option == 'F':
-        df = df[df['sexo'] == 'F']
     df = df[['lat', 'lon']]
-
-    st.write('Número de fallecidos en la gráfica: ', df.shape[0])
 
     st.pydeck_chart(pdk.Deck(
         map_style= None,
@@ -91,8 +85,7 @@ def Distribuciones(data):
     df = pd.concat([df_male, df_female], axis = 1)
     df.columns = ['Hombres', 'Mujeres']
 
-    st.write("Fallecidos por Departamento distinguiendo Sexo")
-    st.write('Número de fallecidos: ', data.shape[0])
+    st.markdown("### Fallecidos por Departamento distinguiendo Sexo")
     st.bar_chart(df)
 
 # Grafica de Pie
@@ -145,5 +138,5 @@ def plot_Criterio(data):
 
     ax.legend(wedges, data_cf['Criterio'] ,title='Criterios', loc = 'center left', bbox_to_anchor = (1, 0, 0.5, 1))
     ax.axis('equal')
-    st.write("Gráfica de los Criterios de Fallecimiento")
+    st.markdown("### Gráfica de los Criterios de Fallecimiento")
     st.pyplot(fig)

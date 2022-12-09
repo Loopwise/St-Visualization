@@ -29,11 +29,18 @@ with fig_col1:
     set_dep = np.sort(df['dpt_cdc'].dropna().unique())
     dep_opt = st.selectbox('Departamento', set_dep)
     df_dep = df[df['dpt_cdc'] == dep_opt]
+
     num_filas = df_dep.shape[0]
     num_hosp = df_dep[df_dep['flag_hospitalizado'] == 1].shape[0]
+    num_O2 = df_dep[df_dep['con_oxigeno'] > 0].shape[0]
+    num_vacunados = df_dep[df_dep['flag_vacuna'] > 0].shape[0]
+    num_ventilacion = df_dep[df_dep['con_ventilacion'] > 0].shape[0]
 
     st.write('Número de Fallecidos en el Departamento: ', num_filas)
     st.write('Número de Hospitalizados: ', num_hosp)
+    st.write('Número de Hospitalizados con Oxígeno: ', num_O2)
+    st.write('Número de Hospitalizados con Oxígeno: ', num_ventilacion)
+    st.write('Número de Vacunados: ', num_vacunados)
 
 
 with fig_col2:
@@ -52,18 +59,40 @@ with fig_col1:
 
 data = filtered_data(df, f_0, f_f, Lima_exclude)
 
+with fig_col1:
+    st.write('Número de fallecidos: ', data.shape[0])
+
 with fig_col2:
-        Distribuciones(data)
+    Distribuciones(data)
 
 fig_col1, fig_col2 = st.columns(2)
 
 with fig_col1:
     plot_Criterio(data)
 
+st.markdown("## Mapa geográfico (afecta el límite de fechas)")
 fig_col1, fig_col2 = st.columns(2)
 
 with fig_col1:
-    option = st.selectbox('Seleccione el sexo', ('M', 'F', 'Both'))
+    option = st.selectbox('Seleccione el sexo', ('Masculino', 'Femenino', 'Ambos'))
+    df = data.copy()
+    if option == 'Masculino':
+        df = df[df['sexo'] == 'M']
+    elif option == 'Femenino':
+        df = df[df['sexo'] == 'F']
+    hosp = st.checkbox('Restringir a Hospitalizados')
+    if hosp:
+        df = df[df['flag_hospitalizado'] == 1]
+    oxig = st.checkbox('Restringir a los que requirieron Oxigeno')
+    if oxig:
+        df = df[df['con_oxigeno'] > 0]
+    vent = st.checkbox('Restringir a los que requirieron Ventilación')
+    if vent:
+        df = df[df['con_ventilacion'] > 0]
+    vac = st.checkbox('Restringir a Vacunados')
+    if vac:
+        df = df[df['flag_vacuna'] > 0]
+    st.write('Número de fallecidos en la gráfica: ', df.shape[0])
 
 with fig_col2:
-    chart(data, option)
+    chart(df)
